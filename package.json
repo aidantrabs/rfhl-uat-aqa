@@ -1,5 +1,5 @@
 {
-    "name": "rbl-site-scripts",
+    "name": "rfhl-uat-aqa",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
@@ -23,6 +23,7 @@
         "@axe-core/playwright": "^4.11.0",
         "@biomejs/biome": "^2.3.11",
         "@playwright/test": "^1.57.0",
-        "@types/node": "^25.0.9"
+        "@types/node": "^25.0.9",
+        "dotenv": "^17.2.3"
     }
 }
