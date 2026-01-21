@@ -1,15 +1,28 @@
 {
-  "name": "rfhl-uat-aqa",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {},
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "devDependencies": {
-    "@playwright/test": "^1.57.0",
-    "@types/node": "^25.0.9"
-  }
+    "name": "rbl-site-scripts",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "playwright test",
+        "test:ui": "playwright test --ui",
+        "test:headed": "playwright test --headed",
+        "test:debug": "playwright test --debug",
+        "lint": "biome lint .",
+        "lint:fix": "biome lint --write .",
+        "format": "biome format --write .",
+        "check": "biome check .",
+        "check:fix": "biome check --write .",
+        "typecheck": "tsc --noEmit"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "devDependencies": {
+        "@axe-core/playwright": "^4.11.0",
+        "@biomejs/biome": "^2.3.11",
+        "@playwright/test": "^1.57.0",
+        "@types/node": "^25.0.9"
+    }
 }
