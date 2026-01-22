@@ -4,8 +4,9 @@ import { requireEnv } from '../utils/env';
 const LOGIN_URL = requireEnv('LOGIN_URL');
 const USERNAME = requireEnv('TEST_USERNAME');
 const PASSWORD = requireEnv('TEST_PASSWORD');
+const SMS_CODE = requireEnv('TEST_SMS_CODE');
 
-test('login flow up to SMS code step', async ({ page }) => {
+test('complete login flow', async ({ page }) => {
     test.setTimeout(180000);
 
     await page.goto(LOGIN_URL, { timeout: 60000 });
@@ -35,9 +36,14 @@ test('login flow up to SMS code step', async ({ page }) => {
         .filter({ hasText: 'Next' })
         .click();
 
-    // check if sms page achieved (for now)
+    // sms code step
     await page.waitForTimeout(2000);
-    await expect(
-        page.getByRole('textbox', { name: 'Enter your SMS Code' })
-    ).toBeVisible();
+    await page
+        .getByRole('textbox', { name: 'Enter your SMS Code' })
+        .fill(SMS_CODE);
+    await page.locator('a:visible').filter({ hasText: 'Confirm' }).click();
+
+    // verify redirect to home
+    await page.waitForURL(/\/home/, { timeout: 30000 });
+    await expect(page).toHaveURL(/\/home/);
 });
