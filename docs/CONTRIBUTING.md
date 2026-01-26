@@ -93,9 +93,9 @@ gitGraph
 
 | Branch Type | Pattern | Example |
 |-------------|---------|---------|
-| Feature | `feature/{issue}-{description}` | `feature/123-add-login-tests` |
-| Bug Fix | `bugfix/{issue}-{description}` | `bugfix/456-fix-timeout` |
-| Hot Fix | `hotfix/{issue}-{description}` | `hotfix/789-critical-fix` |
+| Feature | `feature/{issue}/{description}` | `feature/123/add-login-tests` |
+| Bug Fix | `bugfix/{issue}/{description}` | `bugfix/456/fix-timeout` |
+| Hot Fix | `hotfix/{issue}/{description}` | `hotfix/789/critical-fix` |
 
 ### Creating a Branch
 
@@ -105,7 +105,7 @@ git checkout main
 git pull origin main
 
 # Create feature branch
-git checkout -b feature/123-add-dashboard-tests
+git checkout -b feature/123/add-dashboard-tests
 ```
 
 > [!NOTE]
