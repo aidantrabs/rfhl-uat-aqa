@@ -36,23 +36,32 @@ npm install
 # Install Playwright browsers
 npx playwright install
 
-# Configure environment
-cp .env.example .env
-# Edit .env with your credentials
+# Configure test users
+cp test-data/users.example.json test-data/users.local.json
+# Edit users.local.json with your test credentials
 ```
 
 > [!WARNING]
-> Never commit `.env` or credentials to the repository.
+> Never commit `users.local.json` to the repository.
+
+### Test User Credentials
+
+Test users are defined in `test-data/users.local.json` (gitignored). This file is not committed to the repository.
+
+1. Copy the example file: `cp test-data/users.example.json test-data/users.local.json`
+2. Edit `users.local.json` with your actual credentials
 
 ### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `BASE_URL` | UAT application URL |
-| `LOGIN_URL` | Login page URL |
-| `TEST_USERNAME` | Test account username |
-| `TEST_PASSWORD` | Test account password |
-| `TEST_SMS_CODE` | MFA code for test account |
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `BASE_URL` | The UAT environment URL | Yes |
+
+Set the `BASE_URL` environment variable before running tests:
+
+```bash
+export BASE_URL=https://your-uat-url.com
+```
 
 ---
 
@@ -61,11 +70,15 @@ cp .env.example .env
 ```
 rfhl-uat-aqa/
 ├── e2e/                    # Test specs
+├── test-data/
+│   ├── fixtures.ts         # Playwright fixtures
+│   ├── users.ts            # User types and loader
+│   ├── users.example.json  # Template for credentials (committed)
+│   └── users.local.json    # Your credentials (gitignored)
 ├── utils/                  # Helper functions
 ├── screenshots/            # Test screenshots
 ├── docs/                   # Documentation
 ├── playwright.config.ts    # Playwright configuration
-├── .env.example            # Environment template
 └── package.json
 ```
 
@@ -165,16 +178,98 @@ page.locator('a.logout')
 | Logout button | `icb-logout a.derby-link` |
 | Logout confirm dialog | `getByText('Are you sure you want to exit?')` |
 
-### Login Helper
+### Test Users & Fixtures
 
-Use the shared `login()` function:
+Import from `test-data/fixtures` instead of `@playwright/test`:
 
 ```typescript
-test('my test', async ({ page }) => {
-    await login(page);
-    // test code here
+import { test, expect } from '../test-data/fixtures';
+```
+
+#### Available Fixtures
+
+| Fixture | Description |
+|---------|-------------|
+| `testUser` | The active test user object |
+| `login()` | Login as the default user |
+| `loginAs(user)` | Login as a specific user |
+
+#### Basic Usage
+
+```typescript
+test('my test', async ({ page, login, testUser }) => {
+    await login();
+
+    // Access user data
+    console.log(testUser.name);           // "Kory James"
+    console.log(testUser.accounts[0]);    // First account
 });
 ```
+
+#### Using a Specific User
+
+```typescript
+test.describe('Tests for User 2', () => {
+    test.use({ userId: 'user2' });
+
+    test('user2 can login', async ({ page, login, testUser }) => {
+        await login();
+        // testUser is now user2
+    });
+});
+```
+
+#### Adding New Users
+
+Edit `test-data/users.local.json`:
+
+```json
+{
+    "kory": {
+        "name": "Kory James",
+        "username": "username",
+        "password": "your-password",
+        "smsCode": "222222",
+        "accounts": [
+            {
+                "name": "Chequing Account",
+                "type": "chequing",
+                "number": "1234567890",
+                "currency": "TTD"
+            }
+        ]
+    },
+    "newuser": {
+        "name": "New User",
+        "username": "newuser",
+        "password": "Password123!",
+        "smsCode": "123456",
+        "accounts": [
+            {
+                "name": "Savings Account",
+                "type": "savings",
+                "number": "1234567890",
+                "currency": "TTD"
+            }
+        ]
+    }
+}
+```
+
+The key (e.g., `"kory"`, `"newuser"`) becomes the user's `id` for use with `test.use({ userId: 'newuser' })`.
+
+#### Account Types
+
+| Type | Description |
+|------|-------------|
+| `chequing` | Chequing account |
+| `savings` | Savings account |
+| `credit` | Credit card |
+| `loan` | Loan account |
+| `utility` | Utility payment account |
+
+> [!TIP]
+> Add new users to `users.local.json` without modifying any code.
 
 ### Screenshots
 
