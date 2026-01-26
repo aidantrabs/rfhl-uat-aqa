@@ -1,0 +1,36 @@
+{
+    "userNickname": {
+        "name": "Kory James",
+        "username": "username",
+        "password": "your-password-here",
+        "smsCode": "222222",
+        "accounts": [
+            {
+                "name": "Chequing Account",
+                "type": "chequing",
+                "number": "1234567890",
+                "currency": "TTD"
+            }
+        ]
+    },
+    "anotherUser": {
+        "name": "Another User",
+        "username": "anotheruser",
+        "password": "your-password-here",
+        "smsCode": "123456",
+        "accounts": [
+            {
+                "name": "Savings Account",
+                "type": "savings",
+                "number": "1234567890",
+                "currency": "TTD"
+            },
+            {
+                "name": "Credit Card",
+                "type": "credit",
+                "number": "5140-XXXX-XXXX-1234",
+                "currency": "TTD"
+            }
+        ]
+    }
+}
