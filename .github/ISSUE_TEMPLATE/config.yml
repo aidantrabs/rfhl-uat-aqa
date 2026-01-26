@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/aidantrabs/rfhl-uat-aqa/blob/main/docs/CONTRIBUTING.md
+    about: Read the contributing guidelines before opening an issue
