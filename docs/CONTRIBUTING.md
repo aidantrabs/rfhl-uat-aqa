@@ -114,11 +114,11 @@ gitGraph
 
 ```bash
 # Update main
-git checkout main
+git switch main
 git pull origin main
 
 # Create feature branch
-git checkout -b feature/123/add-dashboard-tests
+git switch -c feature/123/add-dashboard-tests
 ```
 
 > [!NOTE]

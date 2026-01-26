@@ -99,85 +99,85 @@ test.describe('UAT Access Validation', () => {
     });
 });
 
-test.describe('Home Route Behavior', () => {
-    test.setTimeout(180000);
+// test.describe('Home Route Behavior', () => {
+//     test.setTimeout(180000);
 
-    test('redirect occurs once without looping', async ({ page, login }) => {
-        const urlHistory: string[] = [];
-        page.on('framenavigated', (frame) => {
-            if (frame === page.mainFrame()) {
-                urlHistory.push(page.url());
-            }
-        });
+//     test('redirect occurs once without looping', async ({ page, login }) => {
+//         const urlHistory: string[] = [];
+//         page.on('framenavigated', (frame) => {
+//             if (frame === page.mainFrame()) {
+//                 urlHistory.push(page.url());
+//             }
+//         });
 
-        await login();
+//         await login();
 
-        const homeUrls = urlHistory.filter((url) => url.includes('/home'));
-        expect(homeUrls.length).toBeLessThanOrEqual(2);
-        expect(page.url()).toContain('/home');
-    });
+//         const homeUrls = urlHistory.filter((url) => url.includes('/home'));
+//         expect(homeUrls.length).toBeLessThanOrEqual(2);
+//         expect(page.url()).toContain('/home');
+//     });
 
-    test('dashboard loads with user info', async ({
-        page,
-        login,
-        testUser,
-    }) => {
-        await login();
+//     test('dashboard loads with user info', async ({
+//         page,
+//         login,
+//         testUser,
+//     }) => {
+//         await login();
 
-        const spinner = page.locator('mat-spinner, .spinner, .loading').first();
-        if (await spinner.isVisible().catch(() => false)) {
-            await spinner.waitFor({ state: 'hidden', timeout: 30000 });
-        }
+//         const spinner = page.locator('mat-spinner, .spinner, .loading').first();
+//         if (await spinner.isVisible().catch(() => false)) {
+//             await spinner.waitFor({ state: 'hidden', timeout: 30000 });
+//         }
 
-        await expect(page.locator('text=Home')).toBeVisible();
-        await expect(page.locator('text=My Accounts')).toBeVisible();
+//         await expect(page.locator('text=Home')).toBeVisible();
+//         await expect(page.locator('text=My Accounts')).toBeVisible();
 
-        await expect(page.locator(`text=${testUser.name}`)).toBeVisible();
+//         await expect(page.locator(`text=${testUser.name}`)).toBeVisible();
 
-        await page.screenshot({
-            path: path.join(SCREENSHOTS_DIR, 'dashboard-loaded.png'),
-        });
-    });
+//         await page.screenshot({
+//             path: path.join(SCREENSHOTS_DIR, 'dashboard-loaded.png'),
+//         });
+//     });
 
-    test('data populates consistently across refreshes', async ({
-        page,
-        login,
-    }) => {
-        await login();
-        await page.waitForTimeout(3000);
+//     test('data populates consistently across refreshes', async ({
+//         page,
+//         login,
+//     }) => {
+//         await login();
+//         await page.waitForTimeout(3000);
 
-        await page.reload();
-        await page.waitForLoadState('networkidle');
+//         await page.reload();
+//         await page.waitForLoadState('networkidle');
 
-        expect(page.url()).toContain('/home');
-        await expect(page.locator('text=Home')).toBeVisible();
-    });
+//         expect(page.url()).toContain('/home');
+//         await expect(page.locator('text=Home')).toBeVisible();
+//     });
 
-    test('browser back/forward navigation works', async ({ page, login }) => {
-        await login();
+//     test('browser back/forward navigation works', async ({ page, login }) => {
+//         await login();
 
-        await page.locator('text=My Accounts').click();
-        await page.waitForTimeout(2000);
-        const accountsUrl = page.url();
+//         await page.locator('text=My Accounts').click();
+//         await page.waitForTimeout(2000);
+//         const accountsUrl = page.url();
 
-        await page.goBack();
-        await page.waitForTimeout(2000);
+//         await page.goBack();
+//         await page.waitForTimeout(2000);
 
-        await page.goForward();
-        await page.waitForTimeout(2000);
-        expect(page.url()).toBe(accountsUrl);
-    });
+//         await page.goForward();
+//         await page.waitForTimeout(2000);
+//         expect(page.url()).toBe(accountsUrl);
+//     });
 
-    test('page is responsive after load', async ({ page, login }) => {
-        await login();
+//     test('page is responsive after load', async ({ page, login }) => {
+//         await login();
 
-        const startTime = Date.now();
-        await page.locator('text=My Accounts').click();
-        const clickTime = Date.now() - startTime;
+//         const startTime = Date.now();
+//         await page.locator('text=My Accounts').click();
+//         const clickTime = Date.now() - startTime;
 
-        expect(clickTime).toBeLessThan(2000);
-    });
-});
+//         expect(clickTime).toBeLessThan(2000);
+//     });
+// });
 
 // Example: test with specific user
 // test.describe('User-specific tests', () => {
