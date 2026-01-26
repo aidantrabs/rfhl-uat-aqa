@@ -17,6 +17,9 @@ coverage/
 .env.local
 .env.*.local
 
+# Test user credentials
+test-data/users.local.json
+
 # IDE
 .vscode/
 .idea/
