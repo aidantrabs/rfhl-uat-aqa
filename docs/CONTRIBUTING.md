@@ -116,13 +116,13 @@ git checkout -b feature/123/add-dashboard-tests
 Use conventional commits:
 
 ```
-type(scope): description
+type: description
 
 # Examples
-feat(login): add MFA validation test
-fix(selectors): update logout button selector
-test(dashboard): add session persistence test
-docs(readme): update setup instructions
+feat: add MFA validation test
+fix: update logout button selector
+test: add session persistence test
+docs: update setup instructions
 ```
 
 | Type | Usage |
