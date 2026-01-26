@@ -27,7 +27,7 @@ Guidelines for contributing to the RBL Trinidad UAT Test Automation project.
 
 ```bash
 # Clone the repository
-git clone https://github.com/rbl/rfhl-uat-aqa.git
+git clone https://github.com/aidantrabs/rfhl-uat-aqa.git
 cd rfhl-uat-aqa
 
 # Install dependencies
