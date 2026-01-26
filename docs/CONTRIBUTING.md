@@ -57,11 +57,11 @@ Test users are defined in `test-data/users.local.json` (gitignored). This file i
 |----------|-------------|----------|
 | `BASE_URL` | The UAT environment URL | Yes |
 
-Set the `BASE_URL` environment variable before running tests:
+1. Copy the example file: `cp .env.example .env`
+2. Edit `.env` with your actual UAT URL
 
-```bash
-export BASE_URL=https://your-uat-url.com
-```
+> [!WARNING]
+> Never commit `.env` to the repository.
 
 ---
 
