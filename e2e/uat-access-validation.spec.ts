@@ -1,54 +1,14 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { expect, test } from '@playwright/test';
-import { requireEnv } from '../utils/env';
+import { expect, test } from '../test-data/fixtures';
 
-const BASE_URL = requireEnv('BASE_URL');
-const LOGIN_URL = requireEnv('LOGIN_URL');
-const USERNAME = requireEnv('TEST_USERNAME');
-const PASSWORD = requireEnv('TEST_PASSWORD');
-const SMS_CODE = requireEnv('TEST_SMS_CODE');
-
-const SCREENSHOTS_DIR = path.join(__dirname, '..', 'screenshots');
-
-async function login(page: import('@playwright/test').Page) {
-    await page.goto(LOGIN_URL, { waitUntil: 'domcontentloaded' });
-    await page.locator('#step01').waitFor({ state: 'visible' });
-
-    // username step
-    await page.locator('#step01').fill(USERNAME);
-    await page
-        .locator('icb-login-step-user a')
-        .filter({ hasText: 'Next' })
-        .click();
-
-    // password step
-    await page.locator('#step02').waitFor({ state: 'visible' });
-    await page.locator('#step02').fill(PASSWORD);
-    await page
-        .locator('icb-login-step-password a')
-        .filter({ hasText: 'Next' })
-        .click();
-
-    // mfa device selection
-    await page.locator('select').waitFor({ state: 'visible' });
-    await page.locator('select').selectOption({ label: 'SMS Code' });
-    await page
-        .locator('icb-login-step-multifactor-device a')
-        .filter({ hasText: 'Next' })
-        .click();
-
-    // sms code step
-    await page
-        .getByRole('textbox', { name: 'Enter your SMS Code' })
-        .waitFor({ state: 'visible' });
-    await page
-        .getByRole('textbox', { name: 'Enter your SMS Code' })
-        .fill(SMS_CODE);
-    await page.locator('a:visible').filter({ hasText: 'Confirm' }).click();
-
-    await page.waitForURL(/\/home/);
+const BASE_URL = process.env.BASE_URL;
+if (!BASE_URL) {
+    throw new Error('BASE_URL environment variable is required');
 }
+
+const LOGIN_URL = `${BASE_URL}/#/administrationGeneral/login`;
+const SCREENSHOTS_DIR = path.join(__dirname, '..', 'screenshots');
 
 test.describe('UAT Access Validation', () => {
     test.setTimeout(180000);
@@ -69,8 +29,8 @@ test.describe('UAT Access Validation', () => {
         });
     });
 
-    test('login with valid credentials', async ({ page }) => {
-        await login(page);
+    test('login with valid credentials', async ({ page, login }) => {
+        await login();
         await expect(page).toHaveURL(/\/home/);
         await page.screenshot({
             path: path.join(SCREENSHOTS_DIR, 'dashboard.png'),
@@ -93,16 +53,16 @@ test.describe('UAT Access Validation', () => {
         });
     });
 
-    test('session persists after refresh', async ({ page }) => {
-        await login(page);
+    test('session persists after refresh', async ({ page, login }) => {
+        await login();
         await page.reload();
         await page.waitForLoadState('networkidle');
 
         expect(page.url()).toContain('/home');
     });
 
-    test('logout terminates session', async ({ page }) => {
-        await login(page);
+    test('logout terminates session', async ({ page, login }) => {
+        await login();
 
         await page
             .locator('icb-logout a.derby-link')
@@ -138,3 +98,93 @@ test.describe('UAT Access Validation', () => {
         await context.close();
     });
 });
+
+test.describe('Home Route Behavior', () => {
+    test.setTimeout(180000);
+
+    test('redirect occurs once without looping', async ({ page, login }) => {
+        const urlHistory: string[] = [];
+        page.on('framenavigated', (frame) => {
+            if (frame === page.mainFrame()) {
+                urlHistory.push(page.url());
+            }
+        });
+
+        await login();
+
+        const homeUrls = urlHistory.filter((url) => url.includes('/home'));
+        expect(homeUrls.length).toBeLessThanOrEqual(2);
+        expect(page.url()).toContain('/home');
+    });
+
+    test('dashboard loads with user info', async ({
+        page,
+        login,
+        testUser,
+    }) => {
+        await login();
+
+        const spinner = page.locator('mat-spinner, .spinner, .loading').first();
+        if (await spinner.isVisible().catch(() => false)) {
+            await spinner.waitFor({ state: 'hidden', timeout: 30000 });
+        }
+
+        await expect(page.locator('text=Home')).toBeVisible();
+        await expect(page.locator('text=My Accounts')).toBeVisible();
+
+        await expect(page.locator(`text=${testUser.name}`)).toBeVisible();
+
+        await page.screenshot({
+            path: path.join(SCREENSHOTS_DIR, 'dashboard-loaded.png'),
+        });
+    });
+
+    test('data populates consistently across refreshes', async ({
+        page,
+        login,
+    }) => {
+        await login();
+        await page.waitForTimeout(3000);
+
+        await page.reload();
+        await page.waitForLoadState('networkidle');
+
+        expect(page.url()).toContain('/home');
+        await expect(page.locator('text=Home')).toBeVisible();
+    });
+
+    test('browser back/forward navigation works', async ({ page, login }) => {
+        await login();
+
+        await page.locator('text=My Accounts').click();
+        await page.waitForTimeout(2000);
+        const accountsUrl = page.url();
+
+        await page.goBack();
+        await page.waitForTimeout(2000);
+
+        await page.goForward();
+        await page.waitForTimeout(2000);
+        expect(page.url()).toBe(accountsUrl);
+    });
+
+    test('page is responsive after load', async ({ page, login }) => {
+        await login();
+
+        const startTime = Date.now();
+        await page.locator('text=My Accounts').click();
+        const clickTime = Date.now() - startTime;
+
+        expect(clickTime).toBeLessThan(2000);
+    });
+});
+
+// Example: test with specific user
+// test.describe('User-specific tests', () => {
+//     test.use({ userId: 'user2' });
+//
+//     test('user2 can login', async ({ page, login, testUser }) => {
+//         await login();
+//         await expect(page.locator(`text=${testUser.name}`)).toBeVisible();
+//     });
+// });
