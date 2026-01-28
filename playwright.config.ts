@@ -33,7 +33,6 @@ export default defineConfig({
 
     /* Configure projects for major browsers */
     projects: [
-        // Setup project - runs once to authenticate
         {
             name: 'setup',
             testMatch: /auth\.setup\.ts/,
