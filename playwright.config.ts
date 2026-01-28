@@ -34,8 +34,21 @@ export default defineConfig({
     /* Configure projects for major browsers */
     projects: [
         {
-            name: 'setup',
+            name: 'setup-chromium',
             testMatch: /auth\.setup\.ts/,
+            use: { ...devices['Desktop Chrome'] },
+            retries: 2,
+        },
+        {
+            name: 'setup-firefox',
+            testMatch: /auth\.setup\.ts/,
+            use: { ...devices['Desktop Firefox'] },
+            retries: 2,
+        },
+        {
+            name: 'setup-webkit',
+            testMatch: /auth\.setup\.ts/,
+            use: { ...devices['Desktop Safari'] },
             retries: 2,
         },
 
@@ -43,27 +56,27 @@ export default defineConfig({
             name: 'chromium',
             use: {
                 ...devices['Desktop Chrome'],
-                storageState: 'playwright/.auth/user.json',
+                storageState: 'playwright/.auth/setup-chromium.json',
             },
-            dependencies: ['setup'],
+            dependencies: ['setup-chromium'],
         },
 
         {
             name: 'firefox',
             use: {
                 ...devices['Desktop Firefox'],
-                storageState: 'playwright/.auth/user.json',
+                storageState: 'playwright/.auth/setup-firefox.json',
             },
-            dependencies: ['setup'],
+            dependencies: ['setup-firefox'],
         },
 
         {
             name: 'webkit',
             use: {
                 ...devices['Desktop Safari'],
-                storageState: 'playwright/.auth/user.json',
+                storageState: 'playwright/.auth/setup-webkit.json',
             },
-            dependencies: ['setup'],
+            dependencies: ['setup-webkit'],
         },
 
         /* Test against mobile viewports. */
