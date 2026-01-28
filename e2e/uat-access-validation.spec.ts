@@ -57,10 +57,9 @@ test.describe('UAT Access Validation', () => {
         await login();
 
         await page.reload();
-        
+
         await expect(page.url()).toContain('/home');
     });
-
 
     test('logout terminates session', async ({ page, login }) => {
         await login();
@@ -154,59 +153,58 @@ test.describe('UAT Access Validation', () => {
 //         await expect(page.locator('text=Home')).toBeVisible();
 //     });
 
-    test('browser back/forward navigation works', async ({ page, login }) => {
-        await login();
+test('browser back/forward navigation works', async ({ page, login }) => {
+    await login();
 
-        let chequingCard = page
-            .locator('.araure-primary-ribbon-item')
-            .filter({ hasText: '960202029006' });
+    let chequingCard = page
+        .locator('.araure-primary-ribbon-item')
+        .filter({ hasText: '960202029006' });
 
-        await chequingCard.waitFor({ state: 'visible' });
+    await chequingCard.waitFor({ state: 'visible' });
 
-        await expect(chequingCard).toContainText('Chequing Account');
-        await expect(chequingCard).toContainText('960202029006');
+    await expect(chequingCard).toContainText('Chequing Account');
+    await expect(chequingCard).toContainText('960202029006');
 
-        
-        await page.removeAllListeners('request', { behavior: 'wait' });
+    await page.removeAllListeners('request', { behavior: 'wait' });
 
-        await page.keyboard.press('Control+R');
+    await page.keyboard.press('Control+R');
 
-        await expect(page.url()).toContain('/home');
-        
-        chequingCard = page
-            .locator('.araure-primary-ribbon-item')
-            .filter({ hasText: '960202029006' });
+    await expect(page.url()).toContain('/home');
 
-        await expect(chequingCard).toContainText('Chequing Account');
-        await expect(chequingCard).toContainText('960202029006');
+    chequingCard = page
+        .locator('.araure-primary-ribbon-item')
+        .filter({ hasText: '960202029006' });
 
-        // Navigate to My Accounts
-        await page.locator('li.leeds_list_item a:has(span:text-is("My Accounts"))').click();
-        await page.waitForLoadState('networkidle');
+    await expect(chequingCard).toContainText('Chequing Account');
+    await expect(chequingCard).toContainText('960202029006');
 
-        const accs = page.locator('div.ohio_text', { hasText: 'All Accounts' });
-        await expect(accs).toHaveCount(1); // ensure element exists
+    // Navigate to My Accounts
+    await page
+        .locator('li.leeds_list_item a:has(span:text-is("My Accounts"))')
+        .click();
+    await page.waitForLoadState('networkidle');
 
-        const accountsUrl = page.url();
+    const accs = page.locator('div.ohio_text', { hasText: 'All Accounts' });
+    await expect(accs).toHaveCount(1); // ensure element exists
 
-        // Go back to dashboard/home
-        await page.goBack();
-        await page.waitForLoadState('networkidle');
+    const accountsUrl = page.url();
 
-        // Verify dashboard content using welcome message
-        const welcome = page.getByText('Welcome, Kory', { exact: true });
-        await expect(welcome).toHaveCount(1); // alternative to toBeVisible()
+    // Go back to dashboard/home
+    await page.goBack();
+    await page.waitForLoadState('networkidle');
 
-        // Go forward to accounts page
-        await page.goForward();
-        await page.waitForLoadState('networkidle');
+    // Verify dashboard content using welcome message
+    const welcome = page.getByText('Welcome, Kory', { exact: true });
+    await expect(welcome).toHaveCount(1); // alternative to toBeVisible()
 
-        // Verify URL and "All Accounts" content
-        expect(page.url()).toBe(accountsUrl);
-        await expect(accs).toHaveCount(1);
-    });
+    // Go forward to accounts page
+    await page.goForward();
+    await page.waitForLoadState('networkidle');
 
-
+    // Verify URL and "All Accounts" content
+    expect(page.url()).toBe(accountsUrl);
+    await expect(accs).toHaveCount(1);
+});
 
 //     test('page is responsive after load', async ({ page, login }) => {
 //         await login();
@@ -227,4 +225,4 @@ test.describe('UAT Access Validation', () => {
 //         await login();
 //         await expect(page.locator(`text=${testUser.name}`)).toBeVisible();
 //     });
-// }); 
+// });
