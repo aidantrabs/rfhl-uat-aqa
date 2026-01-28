@@ -53,6 +53,9 @@ export const test = base.extend<TestFixtures & TestOptions>({
             const loginUrl = `${baseUrl}/#/administrationGeneral/login`;
 
             await page.goto(loginUrl, { waitUntil: 'domcontentloaded' });
+            await page.removeAllListeners('request', { behavior: 'wait' });
+            // await page.goto(loginUrl);
+            // await page.goto(baseUrl);
             await page.locator('#step01').waitFor({ state: 'visible' });
 
             // username step
