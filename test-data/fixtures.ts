@@ -1,110 +1,117 @@
-/**
- *
- * fixtures for test user management
- *
- * usage in tests:
- *   import { test, expect } from '../test-data/fixtures';
- *
- *   test('my test', async ({ testUser, loginAs }) => {
- *       await loginAs(testUser);
- *       // testUser.accounts[0].name, etc.
- *   });
- *
- * to use a specific user:
- *   test.use({ userId: 'user2' });
- *
- */
-import { test as base } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 import { getDefaultUser, getUser, type TestUser } from './users';
 
 type TestFixtures = {
-    /** the active test user for this test */
     testUser: TestUser;
-    /** login as a specific user */
-    loginAs: (user: TestUser) => Promise<void>;
-    /** login as the default test user */
     login: () => Promise<void>;
 };
 
 type TestOptions = {
-    /** user ID to use for this test (default: first user) */
     userId: string;
 };
 
+async function humanDelay(
+    page: import('@playwright/test').Page,
+    min = 300,
+    max = 800
+) {
+    const delay = Math.floor(Math.random() * (max - min) + min);
+    await page.waitForTimeout(delay);
+}
+
+async function humanType(
+    locator: import('@playwright/test').Locator,
+    text: string
+) {
+    await locator.click();
+    for (const char of text) {
+        await locator.pressSequentially(char, {
+            delay: Math.floor(Math.random() * 100) + 50,
+        });
+    }
+}
+
 export const test = base.extend<TestFixtures & TestOptions>({
-    // option: which user to use
     userId: ['', { option: true }],
 
-    // fixture: the test user object
     testUser: async ({ userId }, use) => {
         const user = userId ? getUser(userId) : getDefaultUser();
         await use(user);
     },
 
-    // fixture: login function for any user
-    loginAs: async ({ page }, use) => {
-        const loginFn = async (user: TestUser) => {
+    login: async ({ page, testUser }, use) => {
+        await use(async () => {
             const baseUrl = process.env.BASE_URL;
-
             if (!baseUrl) {
-                throw new Error('BASE_URL environment variable is required');
+              throw new Error('BASE_URL required');
             }
 
-            const loginUrl = `${baseUrl}/#/administrationGeneral/login`;
+            await page.goto(`${baseUrl}/#/administrationGeneral/login`);
 
-            await page.goto(loginUrl, { waitUntil: 'commit' });
-            await page.locator('#step01').waitFor({ state: 'visible' });
+            const usernameField = page.locator('#step01');
+            await expect(usernameField).toBeVisible({ timeout: 180_000 });
+            await expect(usernameField).toBeEnabled();
+            await humanDelay(page, 500, 1000);
 
-            // username step
-            await page.locator('#step01').fill(user.username);
-            await page
+            await humanType(usernameField, testUser.username);
+            await humanDelay(page);
+
+            const nextButton1 = page
                 .locator('icb-login-step-user a')
-                .filter({ hasText: 'Next' })
-                .click();
+                .filter({ hasText: 'Next' });
+            await expect(nextButton1).toBeVisible();
+            await nextButton1.click();
 
-            // password step
-            await page.locator('#step02').waitFor({ state: 'visible' });
-            await page.locator('#step02').fill(user.password);
-            await page
+            const passwordField = page.locator('#step02');
+            await expect(passwordField).toBeVisible({ timeout: 30_000 });
+            await expect(passwordField).toBeEnabled();
+            await humanDelay(page);
+
+            await humanType(passwordField, testUser.password);
+            await humanDelay(page);
+
+            const nextButton2 = page
                 .locator('icb-login-step-password a')
-                .filter({ hasText: 'Next' })
-                .click();
+                .filter({ hasText: 'Next' });
+            await expect(nextButton2).toBeVisible();
+            await nextButton2.click();
 
-            // mfa device selection
-            await page.locator('select').waitFor({ state: 'visible' });
-            await page.locator('select').selectOption({ label: 'SMS Code' });
-            await page
+            const mfaSelect = page.locator('select');
+            await expect(mfaSelect).toBeVisible({ timeout: 30_000 });
+            await humanDelay(page);
+
+            await mfaSelect.selectOption({ label: 'SMS Code' });
+            await humanDelay(page);
+
+            const nextButton3 = page
                 .locator('icb-login-step-multifactor-device a')
-                .filter({ hasText: 'Next' })
-                .click();
+                .filter({ hasText: 'Next' });
+            await expect(nextButton3).toBeVisible();
+            await nextButton3.click();
 
-            // sms code step
-            await page
-                .getByRole('textbox', { name: 'Enter your SMS Code' })
-                .waitFor({ state: 'visible' });
-            await page
-                .getByRole('textbox', { name: 'Enter your SMS Code' })
-                .fill(user.smsCode);
-            await page
-                .locator('a:visible')
-                .filter({ hasText: 'Confirm' })
-                .click();
+            const smsField = page.getByRole('textbox', {
+                name: 'Enter your SMS Code',
+            });
+            await expect(smsField).toBeVisible({ timeout: 30_000 });
+            await expect(smsField).toBeEnabled();
+            await humanDelay(page);
 
-            await page.waitForURL(/\/home/);
-        };
+            await humanType(smsField, testUser.smsCode);
+            await humanDelay(page, 500, 1000);
 
-        await use(loginFn);
-    },
+            const confirmButton = page
+                .locator('a.ipswich-main-buttons-link:visible')
+                .filter({ hasText: 'Confirm' });
+            await expect(confirmButton).toBeVisible();
+            await confirmButton.click();
 
-    // fixture: default login
-    login: async ({ loginAs, testUser }, use) => {
-        const loginFn = async () => {
-            await loginAs(testUser);
-        };
-
-        await use(loginFn);
+            const dashboardIndicator = page
+                .locator('li.leeds_list_item')
+                .filter({ hasText: 'My Accounts' });
+            await expect(dashboardIndicator).toBeVisible({ timeout: 120_000 });
+        });
     },
 });
 
-export { expect } from '@playwright/test';
+export { expect };
 export type { Account, AccountType, TestUser } from './users';
