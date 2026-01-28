@@ -1,11 +1,10 @@
 import { test as setup } from '@playwright/test';
 import { getDefaultUser } from '../test-data/users';
 
-const authFile = 'playwright/.auth/user.json';
-
 setup.setTimeout(120_000);
 
-setup('authenticate', async ({ page }) => {
+setup('authenticate', async ({ page }, testInfo) => {
+    const authFile = `playwright/.auth/${testInfo.project.name}.json`;
     const user = getDefaultUser();
     const baseUrl = process.env.BASE_URL;
 
