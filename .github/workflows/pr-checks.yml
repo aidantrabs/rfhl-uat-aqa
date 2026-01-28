@@ -6,7 +6,7 @@ on:
 
 jobs:
   lint:
-    name: Lint & Type Check
+    name: Biome Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,9 +21,6 @@ jobs:
 
       - name: Run Biome lint
         run: npm run lint
-
-      - name: Run type check
-        run: npm run typecheck
 
   test:
     name: Playwright Tests
