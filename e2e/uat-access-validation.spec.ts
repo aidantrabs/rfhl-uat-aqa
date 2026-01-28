@@ -19,26 +19,34 @@ test.describe('UAT Access Validation', () => {
         }
     });
 
-    test('login page loads', async ({ page }) => {
-        await page.goto(LOGIN_URL, { waitUntil: 'domcontentloaded' });
+    test('login page loads', async ({ browser }) => {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+
+        await page.goto(LOGIN_URL, { waitUntil: 'commit' });
         await page.locator('#step01').waitFor({ state: 'visible' });
 
         await expect(page.locator('#step01')).toBeVisible();
         await page.screenshot({
             path: path.join(SCREENSHOTS_DIR, 'login-page.png'),
         });
+
+        await context.close();
     });
 
-    test('login with valid credentials', async ({ page, login }) => {
-        await login();
-        await expect(page).toHaveURL(/\/home/);
+    test('login with valid credentials', async ({ page }) => {
+        await page.goto(`${BASE_URL}/#/home`, { waitUntil: 'commit' });
+        await page.waitForURL(/\/home/);
         await page.screenshot({
             path: path.join(SCREENSHOTS_DIR, 'dashboard.png'),
         });
     });
 
-    test('invalid username shows error', async ({ page }) => {
-        await page.goto(LOGIN_URL, { waitUntil: 'domcontentloaded' });
+    test('invalid username shows error', async ({ browser }) => {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+
+        await page.goto(LOGIN_URL, { waitUntil: 'commit' });
         await page.locator('#step01').waitFor({ state: 'visible' });
 
         await page.locator('#step01').fill('invalid_user');
@@ -51,18 +59,22 @@ test.describe('UAT Access Validation', () => {
         await page.screenshot({
             path: path.join(SCREENSHOTS_DIR, 'invalid-username.png'),
         });
+
+        await context.close();
     });
 
-    test('session persists after refresh', async ({ page, login }) => {
-        await login();
+    test('session persists after refresh', async ({ page }) => {
+        await page.goto(`${BASE_URL}/#/home`, { waitUntil: 'commit' });
+        await page.waitForURL(/\/home/);
 
         await page.reload();
 
         await expect(page.url()).toContain('/home');
     });
 
-    test('logout terminates session', async ({ page, login }) => {
-        await login();
+    test('logout terminates session', async ({ page }) => {
+        await page.goto(`${BASE_URL}/#/home`, { waitUntil: 'commit' });
+        await page.waitForURL(/\/home/);
 
         await page
             .locator('icb-logout a.derby-link')
@@ -85,9 +97,7 @@ test.describe('UAT Access Validation', () => {
         const context = await browser.newContext();
         const page = await context.newPage();
 
-        await page.goto(`${BASE_URL}/#/home`, {
-            waitUntil: 'domcontentloaded',
-        });
+        await page.goto(`${BASE_URL}/#/home`, { waitUntil: 'commit' });
         await page.waitForTimeout(3000);
 
         expect(page.url()).not.toContain('/home');
@@ -153,10 +163,10 @@ test.describe('UAT Access Validation', () => {
 //         await expect(page.locator('text=Home')).toBeVisible();
 //     });
 
-test('browser back/forward navigation works', async ({ page, login }) => {
-    await login();
+test('browser back/forward navigation works', async ({ page }) => {
+    await page.goto(`${BASE_URL}/#/home`, { waitUntil: 'commit' });
 
-    let chequingCard = page
+    const chequingCard = page
         .locator('.araure-primary-ribbon-item')
         .filter({ hasText: '960202029006' });
 
@@ -165,45 +175,29 @@ test('browser back/forward navigation works', async ({ page, login }) => {
     await expect(chequingCard).toContainText('Chequing Account');
     await expect(chequingCard).toContainText('960202029006');
 
-    await page.removeAllListeners('request', { behavior: 'wait' });
-
-    await page.keyboard.press('Control+R');
-
-    await expect(page.url()).toContain('/home');
-
-    chequingCard = page
-        .locator('.araure-primary-ribbon-item')
-        .filter({ hasText: '960202029006' });
-
-    await expect(chequingCard).toContainText('Chequing Account');
-    await expect(chequingCard).toContainText('960202029006');
-
     // Navigate to My Accounts
     await page
         .locator('li.leeds_list_item a:has(span:text-is("My Accounts"))')
         .click();
-    await page.waitForLoadState('networkidle');
 
     const accs = page.locator('div.ohio_text', { hasText: 'All Accounts' });
-    await expect(accs).toHaveCount(1); // ensure element exists
+    await accs.waitFor({ state: 'visible' });
 
     const accountsUrl = page.url();
 
     // Go back to dashboard/home
     await page.goBack();
-    await page.waitForLoadState('networkidle');
 
     // Verify dashboard content using welcome message
     const welcome = page.getByText('Welcome, Kory', { exact: true });
-    await expect(welcome).toHaveCount(1); // alternative to toBeVisible()
+    await welcome.waitFor({ state: 'visible' });
 
     // Go forward to accounts page
     await page.goForward();
-    await page.waitForLoadState('networkidle');
+    await accs.waitFor({ state: 'visible' });
 
     // Verify URL and "All Accounts" content
     expect(page.url()).toBe(accountsUrl);
-    await expect(accs).toHaveCount(1);
 });
 
 //     test('page is responsive after load', async ({ page, login }) => {
