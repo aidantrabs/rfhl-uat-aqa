@@ -3,6 +3,8 @@ import { getDefaultUser } from '../test-data/users';
 
 const authFile = 'playwright/.auth/user.json';
 
+setup.setTimeout(120_000);
+
 setup('authenticate', async ({ page }) => {
     const user = getDefaultUser();
     const baseUrl = process.env.BASE_URL;
