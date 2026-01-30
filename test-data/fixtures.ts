@@ -43,7 +43,7 @@ export const test = base.extend<TestFixtures & TestOptions>({
         await use(async () => {
             const baseUrl = process.env.BASE_URL;
             if (!baseUrl) {
-              throw new Error('BASE_URL required');
+                throw new Error('BASE_URL required');
             }
 
             await page.goto(`${baseUrl}/#/administrationGeneral/login`);
