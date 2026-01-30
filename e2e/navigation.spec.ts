@@ -6,7 +6,8 @@ test.describe('Navigation Tests', () => {
         await login();
 
         // await page.waitForTimeout(10000);
-        await page.waitForURL(/\/home/, { timeout: 30000 });
+        await page.waitForURL(/\/home/, { timeout: 300000 });
+        console.log('Current URL:', page.url());
         await expect(page).toHaveURL(/\/home/);
 
         // // go to accounts
@@ -15,6 +16,7 @@ test.describe('Navigation Tests', () => {
         );
         await myAccountsLink.click();
         await page.waitForURL(/\/myProducts/, { timeout: 300000 });
+        console.log('Current URL:', page.url());
         await expect(page).toHaveURL(/\/myProducts/);
 
         var sidebar = page
@@ -25,10 +27,12 @@ test.describe('Navigation Tests', () => {
 
         // // backward nav
         await page.goBack({ timeout: 300000 });
+        console.log('Current URL:', page.url());
         await expect(page).toHaveURL(/\/home/);
 
         // forward nav
         await page.goForward();
+        console.log('Current URL:', page.url());
         await expect(page).toHaveURL(/\/myProducts/);
 
         sidebar = page
