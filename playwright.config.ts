@@ -44,6 +44,9 @@ export default defineConfig({
 
         /* Accept UAT certificates */
         ignoreHTTPSErrors: true,
+
+        storageState: undefined,
+        serviceWorkers: 'block',
     },
 
     projects: [
