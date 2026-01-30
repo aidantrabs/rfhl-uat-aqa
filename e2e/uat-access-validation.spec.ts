@@ -1,4 +1,4 @@
-import { test, expect } from '../test-data/fixtures';
+import { expect, test } from '../test-data/fixtures';
 
 test.describe('Authentication', () => {
     test('valid login reaches dashboard', async ({ page, login }) => {
