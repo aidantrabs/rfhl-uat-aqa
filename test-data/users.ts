@@ -91,3 +91,15 @@ export function getUser(id: string): TestUser {
 export function getDefaultUser(): TestUser {
     return testUsers[0];
 }
+
+/**
+ *
+ * get a user by worker index for parallel test execution.
+ * cycles through available users if worker index exceeds user count.
+ *
+ */
+export function getUserByWorkerIndex(workerIndex: number): TestUser {
+    const userIndex = workerIndex % testUsers.length;
+    
+    return testUsers[userIndex];
+}
