@@ -6,9 +6,36 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 /**
  *
- *   single worker to avoid concurrent session issues
+ * load test user count for parallel worker configuration.
+ * more users = more parallel workers for session-isolated tests.
+ *
+ */
+function getTestUserCount(): number {
+    try {
+        const fs = require('node:fs');
+        const usersPath = path.join(__dirname, 'test-data/users.local.json');
+        if (fs.existsSync(usersPath)) {
+            const users = JSON.parse(fs.readFileSync(usersPath, 'utf-8'));
+            return Object.keys(users).length;
+        }
+    } catch {
+        // fallback to 1 user
+    }
+    return 1;
+}
+
+const userCount = getTestUserCount();
+
+/**
+ *
+ *   workers based on available test users (each worker needs unique user for session isolation)
  *   long timeouts for slow corporate networks
  *   human-like viewport and user agent
+ *
+ *   To enable parallelization:
+ *   1. Add more users to users.local.json (and USERS_JSON secret)
+ *   2. Workers will automatically scale to match user count
+ *   3. Session timeout tests use useWorkerUser: true for worker-based user assignment
  *
  */
 export default defineConfig({
@@ -19,7 +46,7 @@ export default defineConfig({
     expect: { timeout: 30_000 },
 
     fullyParallel: false,
-    workers: 1,
+    workers: userCount, // scales with available test users
 
     forbidOnly: !!process.env.CI,
     retries: 0, // no retries - they can trigger bot protection
@@ -50,6 +77,16 @@ export default defineConfig({
         {
             name: 'chromium',
             use: { ...devices['Desktop Chrome'] },
+            testIgnore: '**/session-timeout.spec.ts',
+        },
+        {
+            name: 'chromium-session-tests',
+            use: {
+                ...devices['Desktop Chrome'],
+                // enable worker-based user assignment for parallel session tests
+                useWorkerUser: true,
+            },
+            testMatch: '**/session-timeout.spec.ts',
         },
     ],
 });
