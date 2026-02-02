@@ -64,7 +64,7 @@ test.describe('Security - Data Masking', () => {
 
             if (isVisible) {
                 const text = await element.textContent();
-           
+
                 if (text) {
                     // check for full 16-digit card numbers (PAN)
                     const hasFullCardNumber =
@@ -244,7 +244,7 @@ test.describe('Security - Session Protection', () => {
                             findings.push(`localStorage: ${key}`);
                         }
                     }
-                   
+
                     const value = localStorage.getItem(key) || '';
                     if (/password|secret/i.test(value)) {
                         findings.push(
@@ -263,7 +263,7 @@ test.describe('Security - Session Protection', () => {
                             findings.push(`sessionStorage: ${key}`);
                         }
                     }
-                   
+
                     const value = sessionStorage.getItem(key) || '';
                     if (/password|secret/i.test(value)) {
                         findings.push(
