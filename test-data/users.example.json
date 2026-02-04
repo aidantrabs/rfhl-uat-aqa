@@ -1,7 +1,7 @@
 {
-    "userNickname": {
-        "name": "Kory James",
-        "username": "username",
+    "user1": {
+        "name": "Test User 1",
+        "username": "testuser1",
         "password": "your-password-here",
         "smsCode": "222222",
         "accounts": [
@@ -13,22 +13,44 @@
             }
         ]
     },
-    "anotherUser": {
-        "name": "Another User",
-        "username": "anotheruser",
+    "user2": {
+        "name": "Test User 2",
+        "username": "testuser2",
         "password": "your-password-here",
-        "smsCode": "123456",
+        "smsCode": "222222",
         "accounts": [
             {
                 "name": "Savings Account",
                 "type": "savings",
-                "number": "1234567890",
+                "number": "1234567891",
                 "currency": "TTD"
-            },
+            }
+        ]
+    },
+    "user3": {
+        "name": "Test User 3",
+        "username": "testuser3",
+        "password": "your-password-here",
+        "smsCode": "222222",
+        "accounts": [
             {
                 "name": "Credit Card",
                 "type": "credit",
                 "number": "5140-XXXX-XXXX-1234",
+                "currency": "TTD"
+            }
+        ]
+    },
+    "user4": {
+        "name": "Test User 4",
+        "username": "testuser4",
+        "password": "your-password-here",
+        "smsCode": "222222",
+        "accounts": [
+            {
+                "name": "Chequing Account",
+                "type": "chequing",
+                "number": "1234567892",
                 "currency": "TTD"
             }
         ]
