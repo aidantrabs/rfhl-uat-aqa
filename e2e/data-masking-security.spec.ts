@@ -50,7 +50,7 @@ test.describe('Security - Data Masking', () => {
         await expect(myAccountsLink).toBeVisible();
         await myAccountsLink.click();
 
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle');
 
         // look for card number elements and verify masking
         const cardElements = page.locator(
@@ -87,7 +87,7 @@ test.describe('Security - Data Masking', () => {
         await expect(myAccountsLink).toBeVisible();
         await myAccountsLink.click();
 
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle');
 
         // CVV inputs should never have pre-filled values
         const cvvInputs = page.locator(
@@ -134,7 +134,7 @@ test.describe('Security - Session Protection', () => {
             .locator('li.leeds_list_item')
             .filter({ hasText: 'My Accounts' });
         await myAccountsLink.click();
-        await page.waitForTimeout(2000);
+        await page.waitForLoadState('networkidle');
 
         const afterNavUrl = page.url();
         expect(
@@ -168,7 +168,7 @@ test.describe('Security - Session Protection', () => {
             .locator('li.leeds_list_item')
             .filter({ hasText: 'My Accounts' });
         await myAccountsLink.click();
-        await page.waitForTimeout(3000);
+        await page.waitForLoadState('networkidle');
 
         // check logs for sensitive data patterns
         const sensitivePatterns = [
@@ -288,7 +288,9 @@ test.describe('Security - Input Protection', () => {
         const baseUrl = process.env.BASE_URL;
         if (!baseUrl) throw new Error('BASE_URL required');
 
-        await page.goto(`${baseUrl}/#/administrationGeneral/login`);
+        await page.goto(`${baseUrl}/#/administrationGeneral/login`, {
+            waitUntil: 'domcontentloaded',
+        });
 
         const usernameField = page.locator('#step01');
         await expect(usernameField).toBeVisible({ timeout: 180_000 });
