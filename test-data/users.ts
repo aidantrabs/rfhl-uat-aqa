@@ -91,3 +91,9 @@ export function getUser(id: string): TestUser {
 export function getDefaultUser(): TestUser {
     return testUsers[0];
 }
+
+export function getAccounts(id: string): Account[] {
+      const user = getUser(id);
+   
+      return user.accounts;
+}
