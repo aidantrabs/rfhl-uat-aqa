@@ -10,32 +10,32 @@ test.describe('Navigation Tests', () => {
         await page.waitForURL(/\/home/, { timeout: 30000 });
         await expect(page).toHaveURL(/\/home/);
 
-        // // go to accounts
-        const myAccountsLink = page.locator(
-            'li.leeds_list_item a:has(span:text-is("My Accounts"))'
-        );
-        await myAccountsLink.click();
-        await page.waitForURL(/\/myProducts/, { timeout: 300000 });
-        await expect(page).toHaveURL(/\/myProducts/);
+        const sidebarMyAccounts = page
+            .locator('li.leeds_list_item')
+            .filter({ hasText: 'My Accounts' });
+        await expect(sidebarMyAccounts).toBeVisible();
+        await sidebarMyAccounts.click();
 
-        var sidebar = page
+        try {
+            await page.waitForURL(/\/myProducts/, { timeout: 10_000 });
+        } catch {
+            await sidebarMyAccounts.click();
+            await page.waitForURL(/\/myProducts/, { timeout: 30_000 });
+        }
+        await page.waitForLoadState('networkidle', { timeout: 30_000 });
+
+        const sidebar = page
             .locator('li.leeds_list_item')
             .filter({ hasText: 'My Accounts' });
 
-        await expect(sidebar).toBeVisible({ timeout: 120_000 });
+        await expect(sidebar).toBeVisible({ timeout: 30_000 });
 
-        // // backward nav
-        await page.goBack({ timeout: 300000 });
+        await page.goBack({ timeout: 60_000 });
         await expect(page).toHaveURL(/\/home/);
 
-        // forward nav
-        await page.goForward();
+        await page.goForward({ timeout: 60_000 });
+        await page.waitForLoadState('networkidle');
         await expect(page).toHaveURL(/\/myProducts/);
-
-        sidebar = page
-            .locator('li.leeds_list_item')
-            .filter({ hasText: 'My Accounts' });
-
         await expect(sidebar).toBeVisible();
     });
 });
