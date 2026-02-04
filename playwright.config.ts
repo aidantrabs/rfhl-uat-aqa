@@ -15,14 +15,14 @@ export default defineConfig({
     testDir: './e2e',
     testIgnore: ['**/auth.setup.ts'],
 
-    timeout: 300_000,
+    timeout: 180_000,
     expect: { timeout: 30_000 },
 
     fullyParallel: false,
     workers: 1,
 
     forbidOnly: !!process.env.CI,
-    retries: 0, // no retries - they can trigger bot protection
+    retries: process.env.CI ? 1 : 0, // 1 retry in CI for flaky network
 
     reporter: [['html', { open: 'never' }]],
 
@@ -34,13 +34,12 @@ export default defineConfig({
         locale: 'en-US',
         timezoneId: 'America/Port_of_Spain',
 
-        /* Conservative timeouts */
         actionTimeout: 30_000,
-        navigationTimeout: 120_000,
+        navigationTimeout: 60_000, // reduced from 120s
 
         /* Collect trace for debugging */
-        trace: 'on',
-        screenshot: 'on',
+        trace: 'on-first-retry', // only trace on retry to save resources
+        screenshot: 'only-on-failure', // only screenshot failures
 
         /* Accept UAT certificates */
         ignoreHTTPSErrors: true,
