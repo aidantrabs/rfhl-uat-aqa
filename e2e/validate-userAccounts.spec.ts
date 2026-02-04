@@ -40,7 +40,10 @@ test.describe('Accounts', () => {
             });
 
             await expect
-                .soft(accountRow.first(), `Account not found: ${account.number}`)
+                .soft(
+                    accountRow.first(),
+                    `Account not found: ${account.number}`
+                )
                 .toBeVisible({ timeout: 5_000 });
         }
     });
