@@ -46,7 +46,9 @@ export const test = base.extend<TestFixtures & TestOptions>({
                 throw new Error('BASE_URL required');
             }
 
-            await page.goto(`${baseUrl}/#/administrationGeneral/login`);
+            await page.goto(`${baseUrl}/#/administrationGeneral/login`, {
+                waitUntil: 'domcontentloaded',
+            });
 
             const usernameField = page.locator('#step01');
             await expect(usernameField).toBeVisible({ timeout: 180_000 });
