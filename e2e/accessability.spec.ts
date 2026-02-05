@@ -22,13 +22,13 @@ async function runA11yScan(page: Page, pageName: string) {
         const bi = IMPACT_ORDER.indexOf(
             (b.impact ?? 'minor') as (typeof IMPACT_ORDER)[number]
         );
-    
+
         return ai - bi;
     });
 
     const summary = IMPACT_ORDER.map((level) => {
         const count = sorted.filter((v) => v.impact === level).length;
-        
+
         return count > 0 ? `${count} ${level}` : null;
     })
         .filter(Boolean)
@@ -40,7 +40,7 @@ async function runA11yScan(page: Page, pageName: string) {
         console.log('  No violations found');
     } else {
         console.log(`  ${sorted.length} violations: ${summary}`);
-       
+
         for (const v of sorted) {
             console.log(formatViolation(v));
         }
