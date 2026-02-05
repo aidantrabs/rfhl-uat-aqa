@@ -93,7 +93,7 @@ export function getDefaultUser(): TestUser {
 }
 
 export function getAccounts(id: string): Account[] {
-      const user = getUser(id);
-   
-      return user.accounts;
+    const user = getUser(id);
+
+    return user.accounts;
 }
