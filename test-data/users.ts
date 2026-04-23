@@ -92,8 +92,21 @@ export function getDefaultUser(): TestUser {
     return testUsers[0];
 }
 
+<<<<<<< HEAD
 export function getAccounts(id: string): Account[] {
     const user = getUser(id);
 
     return user.accounts;
+=======
+/**
+ *
+ * get a user by worker index for parallel test execution.
+ * cycles through available users if worker index exceeds user count.
+ *
+ */
+export function getUserByWorkerIndex(workerIndex: number): TestUser {
+    const userIndex = workerIndex % testUsers.length;
+    
+    return testUsers[userIndex];
+>>>>>>> feat/51/session-management
 }

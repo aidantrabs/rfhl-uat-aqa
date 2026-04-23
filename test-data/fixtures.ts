@@ -1,13 +1,20 @@
 import { test as base, expect } from '@playwright/test';
-import { getDefaultUser, getUser, type TestUser } from './users';
+import {
+    getDefaultUser,
+    getUser,
+    getUserByWorkerIndex,
+    type TestUser,
+} from './users';
 
 type TestFixtures = {
     testUser: TestUser;
     login: () => Promise<void>;
+    reAuthenticate: () => Promise<void>;
 };
 
 type TestOptions = {
     userId: string;
+    useWorkerUser: boolean;
 };
 
 async function humanDelay(
@@ -33,9 +40,17 @@ async function humanType(
 
 export const test = base.extend<TestFixtures & TestOptions>({
     userId: ['', { option: true }],
+    useWorkerUser: [false, { option: true }],
 
-    testUser: async ({ userId }, use) => {
-        const user = userId ? getUser(userId) : getDefaultUser();
+    testUser: async ({ userId, useWorkerUser }, use, workerInfo) => {
+        let user: TestUser;
+        if (useWorkerUser) {
+            user = getUserByWorkerIndex(workerInfo.workerIndex);
+        } else if (userId) {
+            user = getUser(userId);
+        } else {
+            user = getDefaultUser();
+        }
         await use(user);
     },
 
@@ -111,6 +126,43 @@ export const test = base.extend<TestFixtures & TestOptions>({
                 .locator('li.leeds_list_item')
                 .filter({ hasText: 'My Accounts' });
             await expect(dashboardIndicator).toBeVisible({ timeout: 120_000 });
+        });
+    },
+
+    reAuthenticate: async ({ page, login }, use) => {
+        await use(async () => {
+            const loginForm = page.locator('#step01');
+            const isOnLoginPage = await loginForm
+                .isVisible({ timeout: 5_000 })
+                .catch(() => false);
+
+            if (isOnLoginPage) {
+                await login();
+                return;
+            }
+
+            const sessionModal = page.getByText('Session about to expire');
+            const hasSessionWarning = await sessionModal
+                .isVisible({ timeout: 1_000 })
+                .catch(() => false);
+
+            if (hasSessionWarning) {
+                const stayLoggedIn = page.getByText('Stay logged in');
+                await stayLoggedIn.click();
+                await expect(sessionModal).not.toBeVisible({ timeout: 10_000 });
+                return;
+            }
+
+            const sidebar = page
+                .locator('li.leeds_list_item')
+                .filter({ hasText: 'My Accounts' });
+            const isLoggedIn = await sidebar
+                .isVisible({ timeout: 5_000 })
+                .catch(() => false);
+
+            if (!isLoggedIn) {
+                await login();
+            }
         });
     },
 });
